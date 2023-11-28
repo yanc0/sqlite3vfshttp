@@ -3,11 +3,11 @@ package main
 import (
 	"database/sql"
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/psanford/sqlite3vfs"
@@ -15,7 +15,13 @@ import (
 )
 
 var url = flag.String("url", "", "URL of sqlite db")
-var query = flag.String("query", "", "Query to run")
+
+// var query = flag.String("query", `select rowid from documents_fts where content_text match '"mayotte"' ORDER BY RANK`, "Query to run")
+var query = flag.String("query", `select filename, content_text from documents_fts where content_text match '"mayotte"' ORDER BY RANK`, "Query to run")
+
+//var query = flag.String("query", `select * from documents where rowid = 3`, "Query to run")
+
+// var query = flag.String("query","explain query plan select * from documents where id = '7a175eab-043e-4291-88f3-ca0c782b7715' ", "")
 var referer = flag.String("referer", "", "HTTP Referer")
 var userAgent = flag.String("user-agent", "", "HTTP User agent")
 
@@ -46,6 +52,8 @@ func main() {
 		log.Fatalf("open db err: %s", err)
 	}
 
+	start := time.Now()
+
 	rows, err := db.Query(*query)
 	if err != nil {
 		log.Fatalf("query err: %s", err)
@@ -75,13 +83,14 @@ func main() {
 				names = append(names, *col)
 			}
 		}
-		fmt.Printf("row: %+v\n", names)
+		//fmt.Printf("row: %+v\n", names)
 	}
 	err = rows.Close()
 	if err != nil {
 		log.Fatalf("query rows err: %s", err)
 	}
 
+	log.Printf("total read bytes: %d (%f MB) in %s", vfs.TotalReadBytes, float64(vfs.TotalReadBytes)/1000.0/1000.0, time.Since(start))
 }
 
 type roundTripper struct {

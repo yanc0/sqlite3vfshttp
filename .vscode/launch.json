@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "test",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "showLog": true,
+      "trace": "log",
+      "buildFlags": "-tags 'fts5 json1'",
+      "program": "${workspaceFolder}/sqlitehttpcli",
+    }
+  ]
+}
